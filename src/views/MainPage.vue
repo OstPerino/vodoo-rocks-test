@@ -1,25 +1,27 @@
 <template>
   <div class="page flex flex-col items-center">
-    <div class="empty" v-if="!posts.length">
-      <span class="text-gray-600">No posts are here</span>
-    </div>
-    <div class="main" v-else>
-      <SearchInput class="search-input mb-4" @update:search-text="onSearchHandler" />
+    <PostsEmptyState v-if="!posts.length" />
+    <div class="main flex flex-col items-center" v-else>
+      <SearchInput
+        class="search-input mb-4"
+        @update:search-text="onSearchHandler"
+      />
       <ul class="post-list">
         <li v-for="post in filteredList" :key="post.id">
           <PostCard :post="post" />
         </li>
       </ul>
+      <PostsEmptyState v-if="!filteredList.length" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useStore } from "vuex";
-import {computed, onMounted, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 import PostCard from "@/components/posts/PostCard.vue";
 import SearchInput from "@/components/search/SearchInput.vue";
-import IUser from "@/types/user.type";
+import PostsEmptyState from "@/components/posts/PostsEmptyState.vue";
 import IPost from "@/types/post.type";
 
 const searchText = ref<string>("");
@@ -32,24 +34,24 @@ const posts = computed(() => {
 
 const onSearchHandler = (searchString: string) => {
   searchText.value = searchString;
-}
+};
 
 const filteredList = computed(() => {
   return store.state.postsStore.posts.filter((item: IPost) => {
-    return item.authorName.toLowerCase().includes(searchText.value.toLowerCase())
+    return item.authorName
+      .toLowerCase()
+      .includes(searchText.value.toLowerCase());
   });
 });
 
-const initData = async () => {
-  try {
-    await store.dispatch("postsStore/asyncSetPosts");
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 onMounted(async () => {
-  await initData();
+  store.commit("layoutStore/showLoader");
+  await store.dispatch("postsStore/asyncSetPosts");
+
+  const timeoutId = setTimeout(() => {
+    store.commit("layoutStore/hideLoader");
+    clearTimeout(timeoutId);
+  }, 2000);
 });
 </script>
 
@@ -64,7 +66,8 @@ onMounted(async () => {
 }
 
 .search-input {
-  min-width: 600px;
+  max-width: 800px;
+  min-width: 400px;
 }
 
 @media screen and (max-width: 1200px) {

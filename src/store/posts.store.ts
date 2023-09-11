@@ -1,6 +1,7 @@
 import IPost from "@/types/post.type";
 import {fetchPosts} from "@/services/post.service";
 import {fetchUser} from "@/services/user.service";
+import {useToast} from "vue-toastification";
 
 export default {
   namespaced: true,
@@ -25,7 +26,8 @@ export default {
 
         commit("setPosts", transformedPosts);
       } catch (e: any) {
-        return e.response;
+        const toast = useToast();
+        toast.error("Не удалось получить список постов");
       }
     }
   },
