@@ -65,6 +65,10 @@ onMounted(async () => {
   gap: 1rem;
 }
 
+  .page {
+    overflow-y: scroll;
+  }
+
 .search-input {
   max-width: 800px;
   min-width: 400px;

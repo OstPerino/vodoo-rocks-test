@@ -1,7 +1,7 @@
 import IPost from "@/types/post.type";
-import {fetchPosts} from "@/services/post.service";
-import {fetchUser} from "@/services/user.service";
-import {useToast} from "vue-toastification";
+import { fetchPosts } from "@/services/post.service";
+import { fetchUser } from "@/services/user.service";
+import { useToast } from "vue-toastification";
 
 export default {
   namespaced: true,
@@ -19,16 +19,18 @@ export default {
         const response = await fetchPosts();
         const posts = response.data;
 
-        const transformedPosts = await Promise.all(posts.map(async (post: IPost) => {
-          const author = await fetchUser(post.userId);
-          return { ...post, authorName: author.data.username };
-        }));
+        const transformedPosts = await Promise.all(
+          posts.map(async (post: IPost) => {
+            const author = await fetchUser(post.userId);
+            return { ...post, authorName: author.data.username };
+          })
+        );
 
         commit("setPosts", transformedPosts);
       } catch (e: any) {
         const toast = useToast();
         toast.error("Не удалось получить список постов");
       }
-    }
+    },
   },
 };
